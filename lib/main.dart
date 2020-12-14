@@ -36,12 +36,23 @@ class _MyHomePageState extends State<MyHomePage> {
   // initializes our admob service
   final ams = AdMobServices();
 
+  AdmobInterstitial myInterstitial;
+
+ 
+
+
   @override
   void initState() {
     super.initState();
     // initializes the admob package
     var appID = ams.getAdmobAppId();
     Admob.initialize(testDeviceIds: [appID]);
+    myInterstitial = AdmobInterstitial(
+      adUnitId: ams.getFullPageAddId(),
+    );
+    myInterstitial
+      ..load()
+      ..show();
   }
 
   int _currentIndex = 0;
@@ -114,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onTap: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (BuildContext context) {
-                    return AdmobFullPage();
+                    return AdmobFullPage(myInterstitial);
                   }));
                 },
                 child: Container(
