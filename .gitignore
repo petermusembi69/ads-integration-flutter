@@ -31,11 +31,8 @@
 .pub/
 /build/
 /android/app/google-services.json
-<<<<<<< HEAD
-=======
-/android/app/src/main/AndroidManifest.xml
 
->>>>>>> db70b5a708349eab10d5ea6ade5b437b09ebc1ac
+/android/app/src/main/AndroidManifest.xml
 
 # Web related
 lib/generated_plugin_registrant.dart
