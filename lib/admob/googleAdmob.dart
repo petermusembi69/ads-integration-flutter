@@ -3,27 +3,31 @@ import 'package:admob_flutter/admob_flutter.dart';
 import '../screensPage.dart';
 import '../services/admob_services.dart';
 
+// page is used to display Full page ad/ interstial ad
 class AdmobFullPage extends StatefulWidget {
   AdmobFullPage(this.ad, {Key key}) : super(key: key);
+  // var ad is the interstial ad instance
   final ad;
   @override
   _AdmobFullPageState createState() => _AdmobFullPageState();
 }
 
 class _AdmobFullPageState extends State<AdmobFullPage> {
+  // ams class instance with IDs helper methods
   final ams = AdMobServices();
 
   @override
   void initState() {
     super.initState();
-    // initializes the admob package
+    // get app ID and initializes the admob package
     var appID = ams.getAdmobAppId();
     Admob.initialize(testDeviceIds: [appID]);
     widget.ad..load();
   }
 
   void dispose() {
-    widget.ad.dispose();
+    // dispose is not null
+    widget.ad?.dispose();
     super.dispose();
   }
 
@@ -34,7 +38,6 @@ class _AdmobFullPageState extends State<AdmobFullPage> {
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             onPressed: () {
-              widget.ad..load();
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (BuildContext context) {
                 return MyHomePage(1,'Flutter Demo Home Page');
