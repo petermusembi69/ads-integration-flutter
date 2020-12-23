@@ -5,6 +5,8 @@ import 'package:admob_flutter/admob_flutter.dart';
 import './services/admob_services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ads_integration_flutter/admob/googleAdmob.dart';
+import 'package:flutter_native_admob/flutter_native_admob.dart';
+import 'package:flutter_native_admob/native_admob_controller.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage(this.tabIndex, this.title, {Key key}) : super(key: key);
@@ -19,12 +21,16 @@ class _MyHomePageState extends State<MyHomePage> {
   final ams = AdMobServices();
 
   AdmobInterstitial myInterstitial;
+  AdmobReward admobReward;
   int _currentIndex = 0;
+  int _rewardAmount = 0;
+  final _nativeAdController = NativeAdmobController();
 
   @override
   void dispose() {
     super.dispose();
-    myInterstitial.dispose();
+    myInterstitial?.dispose();
+    admobReward?.dispose();
   }
 
   @override
@@ -36,8 +42,24 @@ class _MyHomePageState extends State<MyHomePage> {
     myInterstitial = new AdmobInterstitial(
       adUnitId: ams.getFullPageAddId(),
     );
-    myInterstitial..load();
+    myInterstitial.load();
     _currentIndex = widget.tabIndex;
+    admobReward = new AdmobReward(
+      adUnitId: ams.getRewardAddId(),
+      listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+        if (event == AdmobAdEvent.closed) admobReward.load();
+        handleEvent(args);
+      },
+    );
+    admobReward.load();
+    _nativeAdController.reloadAd(forceRefresh: true);
+  }
+
+  void handleEvent(Map<String, dynamic> args) {
+    if (args.isNotEmpty && args != null)
+      setState(() {
+        _rewardAmount += args['amount'];
+      });
   }
 
   List<BottomNavigationBarItem> _items = [
@@ -119,7 +141,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () async {
+                  if (await admobReward.isLoaded)
+                    admobReward.show();
+                  else
+                    print('ne');
+                },
                 child: Container(
                   width: 200,
                   height: 60,
@@ -127,25 +154,46 @@ class _MyHomePageState extends State<MyHomePage> {
                       borderRadius: BorderRadius.all(Radius.circular(7.0)),
                       color: Colors.green),
                   padding: EdgeInsets.all(5),
-                  child: Center(
-                    child: Text('Reward Ad'),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Reward Ad',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        '$_rewardAmount Coins',
+                        style: TextStyle(fontSize: 15),
+                      )
+                    ],
                   ),
                 ),
               ),
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  width: 200,
-                  height: 60,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(7.0)),
-                      color: Colors.orange),
-                  padding: EdgeInsets.all(5),
-                  child: Center(
-                    child: Text('Layout Ad'),
+              Column(children: [
+                Center(
+                  child: Text('Native Ad'),
+                ),
+                SizedBox(height: 10),
+                GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    width: 200,
+                    height: 60,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(7.0)),
+                        color: Colors.orange),
+                    padding: EdgeInsets.all(5),
+                    child: Center(
+                      child: NativeAdmob(
+                        adUnitID: ams.getLayoutAddId(),
+                        numberAds: 3,
+                        controller: _nativeAdController,
+                        type: NativeAdmobType.full,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ]),
             ]),
       ),
       Align(
@@ -266,9 +314,6 @@ class _MyHomePageState extends State<MyHomePage> {
               print(_currentIndex);
             });
           },
-        ),
-        appBar: AppBar(
-          title: Text('Adds App'),
         ),
         body: screens[_currentIndex]);
   }
