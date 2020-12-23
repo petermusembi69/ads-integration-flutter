@@ -31,6 +31,7 @@ dependencies:
   animated_text_kit: ^3.0.0
   admob_flutter: ^1.0.1
   font_awesome_flutter: ^8.10.1
+  flutter_native_admob: ^2.1.0+3
 
 dev_dependencies:
   flutter_test:
