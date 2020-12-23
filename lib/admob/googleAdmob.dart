@@ -3,10 +3,10 @@ import 'package:admob_flutter/admob_flutter.dart';
 import '../screensPage.dart';
 import '../services/admob_services.dart';
 
-// page is used to display Full page ad/ interstial ad
+// page is used to display Full page ad/ Interstitial ad
 class AdmobFullPage extends StatefulWidget {
   AdmobFullPage(this.ad, {Key key}) : super(key: key);
-  // var ad is the interstial ad instance
+  // var ad is the Interstitial ad instance
   final ad;
   @override
   _AdmobFullPageState createState() => _AdmobFullPageState();
@@ -26,7 +26,7 @@ class _AdmobFullPageState extends State<AdmobFullPage> {
   }
 
   void dispose() {
-    // dispose is not null
+    // disposes widget.ad if not null
     widget.ad?.dispose();
     super.dispose();
   }
@@ -38,6 +38,7 @@ class _AdmobFullPageState extends State<AdmobFullPage> {
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             onPressed: () {
+              Navigator.pop(context);
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (BuildContext context) {
                 return MyHomePage(1,'Flutter Demo Home Page');

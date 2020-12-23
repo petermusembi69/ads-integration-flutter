@@ -19,7 +19,7 @@ class AdMobServices {
     return null;
   }
 
-  // Method provides interstial unit ID
+  // Method provides Interstitial unit ID
   String getFullPageAddId() {
      if (Platform.isAndroid) {
       return 'ca-app-pub-3940256099942544/1033173712';
