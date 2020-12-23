@@ -19,18 +19,20 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // initializes our admob service
   final ams = AdMobServices();
-
+  //Define ad Units variables
   AdmobInterstitial myInterstitial;
   AdmobReward admobReward;
+  final _nativeAdController = NativeAdmobController();
+
   int _currentIndex = 0;
   int _rewardAmount = 0;
-  final _nativeAdController = NativeAdmobController();
 
   @override
   void dispose() {
-    super.dispose();
     myInterstitial?.dispose();
     admobReward?.dispose();
+    _nativeAdController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -39,11 +41,14 @@ class _MyHomePageState extends State<MyHomePage> {
     // initializes the admob package
     var appID = ams.getAdmobAppId();
     Admob.initialize(testDeviceIds: [appID]);
+    // initialize interstitial variable
     myInterstitial = new AdmobInterstitial(
       adUnitId: ams.getFullPageAddId(),
     );
+
+    // load interstitial variable
     myInterstitial.load();
-    _currentIndex = widget.tabIndex;
+    // initialize Reward variable
     admobReward = new AdmobReward(
       adUnitId: ams.getRewardAddId(),
       listener: (AdmobAdEvent event, Map<String, dynamic> args) {
@@ -51,17 +56,22 @@ class _MyHomePageState extends State<MyHomePage> {
         handleEvent(args);
       },
     );
+    // load Reward variable
     admobReward.load();
-    _nativeAdController.reloadAd(forceRefresh: true);
+    // assign the widget passed index value
+    _currentIndex = widget.tabIndex;
   }
 
+  //handler method for the reward ad
   void handleEvent(Map<String, dynamic> args) {
+    print('3943444444444444444444934344444444 $args');
     if (args.isNotEmpty && args != null)
       setState(() {
         _rewardAmount += args['amount'];
       });
   }
 
+//  Bottom navigator items
   List<BottomNavigationBarItem> _items = [
     BottomNavigationBarItem(
       icon: Icon(Icons.home),
@@ -88,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     List screens = [
+      // first screen
       Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -104,6 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+      // second screen
       Align(
         alignment: Alignment.center,
         child: Column(
@@ -118,7 +130,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 AdmobBanner(
                   adSize: AdmobBannerSize.FULL_BANNER,
                   adUnitId: ams.getBannerAddId(),
-                  onBannerCreated: _onBanner,
                 ),
               ]),
               GestureDetector(
@@ -196,6 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ]),
             ]),
       ),
+      // third screen
       Align(
         alignment: Alignment.center,
         child: Column(
@@ -247,6 +259,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ]),
       ),
+      // fourth screen
       Align(
         alignment: Alignment.center,
         child: Column(
@@ -308,17 +321,10 @@ class _MyHomePageState extends State<MyHomePage> {
           selectedItemColor: Colors.blue,
           onTap: (index) {
             setState(() {
-              print(_currentIndex);
-              print(index);
               _currentIndex = index;
-              print(_currentIndex);
             });
           },
         ),
         body: screens[_currentIndex]);
-  }
-
-  void _onBanner(AdmobBannerController controller) {
-    print(1111122111);
   }
 }
