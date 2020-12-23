@@ -31,7 +31,6 @@
 .pub/
 /build/
 /android/app/google-services.json
-/lib/services/
 
 /android/app/src/main/AndroidManifest.xml
 
