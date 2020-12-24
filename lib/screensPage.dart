@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:facebook_audience_network/facebook_audience_network.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:admob_flutter/admob_flutter.dart';
 import './services/admob_services.dart';
@@ -26,6 +27,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int _currentIndex = 0;
   int _rewardAmount = 0;
+  bool _isInterstitialAdLoaded = false;
+  bool _isRewardedAdLoaded = false;
+  bool _isRewardedVideoComplete = false;
 
   @override
   void dispose() {
@@ -56,10 +60,59 @@ class _MyHomePageState extends State<MyHomePage> {
         handleEvent(args);
       },
     );
+    //initalize facebook ad
+    FacebookAudienceNetwork.init(
+      testingId: "b9f2908b-1a6b-4a5b-b862-ded7ce289e41",
+    );
+
+    //call these two methods
+    _loadInterstitialAd();
+    _loadRewardedVideoAd();
+
     // load Reward variable
     admobReward.load();
     // assign the widget passed index value
     _currentIndex = widget.tabIndex;
+  }
+
+  void _loadInterstitialAd() {
+    FacebookInterstitialAd.loadInterstitialAd(
+      placementId:
+          "IMG_16_9_APP_INSTALL#2312433698835503_2650502525028617", //"IMG_16_9_APP_INSTALL#2312433698835503_2650502525028617" YOUR_PLACEMENT_ID
+      listener: (result, value) {
+        print(">> FAN > Interstitial Ad: $result --> $value");
+        if (result == InterstitialAdResult.LOADED)
+          _isInterstitialAdLoaded = true;
+
+        /// Once an Interstitial Ad has been dismissed and becomes invalidated,
+        /// load a fresh Ad by calling this function.
+        if (result == InterstitialAdResult.DISMISSED &&
+            value["invalidated"] == true) {
+          _isInterstitialAdLoaded = false;
+          _loadInterstitialAd();
+        }
+      },
+    );
+  }
+
+  void _loadRewardedVideoAd() {
+    FacebookRewardedVideoAd.loadRewardedVideoAd(
+      placementId: "YOUR_PLACEMENT_ID",
+      listener: (result, value) {
+        print("Rewarded Ad: $result --> $value");
+        if (result == RewardedVideoAdResult.LOADED) _isRewardedAdLoaded = true;
+        if (result == RewardedVideoAdResult.VIDEO_COMPLETE)
+          _isRewardedVideoComplete = true;
+
+        /// Once a Rewarded Ad has been closed and becomes invalidated,
+        /// load a fresh Ad by calling this function.
+        if (result == RewardedVideoAdResult.VIDEO_CLOSED &&
+            (value == true || value["invalidated"] == true)) {
+          _isRewardedAdLoaded = false;
+          _loadRewardedVideoAd();
+        }
+      },
+    );
   }
 
   //handler method for the reward ad
@@ -216,7 +269,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               Text('Banner Add'),
               GestureDetector(
-                onTap: () {},
+                onTap: _showInterstitialAd,
                 child: Container(
                   width: 200,
                   height: 60,
@@ -230,7 +283,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: _showRewardedAd,
                 child: Container(
                   width: 200,
                   height: 60,
@@ -327,4 +380,38 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: screens[_currentIndex]);
   }
+
+  _showInterstitialAd() {
+    if (_isInterstitialAdLoaded == true)
+      FacebookInterstitialAd.showInterstitialAd();
+    else
+      print("Interstial Ad not yet loaded!");
+  }
+
+  _showRewardedAd() {
+    if (_isRewardedAdLoaded == true)
+      FacebookRewardedVideoAd.showRewardedVideoAd();
+    else
+      print("Rewarded Ad not yet loaded!");
+  }
+
+  // _showBannerAd() {
+  //   setState(() {
+  //     _currentAd = FacebookBannerAd(
+  //       // placementId:
+  //       //     "IMG_16_9_APP_INSTALL#2312433698835503_2964944860251047", //testid
+  //       bannerSize: BannerSize.STANDARD,
+  //       listener: (result, value) {
+  //         print("Banner Ad: $result -->  $value");
+  //       },
+  //     );
+  // });
+  // }
+
+  // _showNativeBannerAd() {
+  //   setState(() {
+  //     _currentAd = _nativeBannerAd();
+  //   });
+  // }
+
 }
