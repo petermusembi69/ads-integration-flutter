@@ -38,7 +38,7 @@ class AdMobServices {
   // Method provides layout unit ID
   String getLayoutAddId() {
      if (Platform.isAndroid) {
-      return 'ca-app-pub-4117522516334526/7380725010';
+      return 'ca-app-pub-3940256099942544/2247696110';
     }
     return null;
   }
